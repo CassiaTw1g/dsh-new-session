@@ -252,26 +252,32 @@ def card(img, d, idx: int, title: str, note_segments, y: float, h: float) -> Non
 
     tx = bx + bs + 30
     tw = (x1 - 36) - tx
-    draw_line(d, title, BOLD_PATH, 41, (tx, y + 34), WHITE, max_w=tw, min_size=30, name="card%d-title" % idx)
-    draw_segments(d, note_segments, (tx, y + 94), max_w=tw, name="card%d-note" % idx)
+    draw_line(d, title, BOLD_PATH, 40, (tx, y + 32), WHITE, max_w=tw, min_size=30, name="card%d-title" % idx)
+    draw_segments(d, note_segments, (tx, y + 90), max_w=tw, name="card%d-note" % idx)
 
 
 def command_bar(img, d, cmd: str, y: float, h: float) -> None:
     x0, x1 = MARGIN, W - MARGIN
     d.rounded_rectangle([sc(x0), sc(y), sc(x1), sc(y + h)], radius=sc(22),
                         fill=BAR_FILL + (255,), outline=BAR_LINE + (255,), width=sc(2))
-    # 三个小圆点当终端窗饰
-    for i, c in enumerate([(255, 106, 92), (255, 189, 68), (81, 205, 128)]):
-        cx = x0 + 34 + i * 22
-        d.ellipse([sc(cx - 6), sc(y + 20 - 6), sc(cx + 6), sc(y + 20 + 6)], fill=c + (235,))
+    # 左侧电流高光条
+    d.rounded_rectangle([sc(x0) + sc(1), sc(y + 24), sc(x0) + sc(6), sc(y + h - 24)],
+                        radius=sc(3), fill=ACCENT + (200,))
 
-    px = x0 + 34
-    draw_line(d, "$", BOLD_PATH, 32, (px, y + h / 2 - 22), ACCENT, name="bar-$")
-    size = fit_size(d, cmd, MONO_PATH, 31, 19, (x1 - 34) - (px + 26))
+    px = x0 + 40
+    dollar_font = font(BOLD_PATH, 34)
+    db = measure(d, "$", dollar_font)
+    d.text((sc(px), sc(y + (h - (db[3] - db[1]) / SCALE) / 2 - db[1] / SCALE)),
+           "$", font=dollar_font, fill=ACCENT, anchor="la")
+    check("bar-$", (px, y, px + 26, y + h), (x0, y, x1, y + h))
+
+    text_x = px + 28
+    size = fit_size(d, cmd, MONO_PATH, 31, 19, (x1 - 34) - text_x)
     fnt = font(MONO_PATH, size)
-    d.text((sc(px + 26), sc(y + h / 2 - 24)), cmd, font=fnt, fill=(224, 233, 250), anchor="la")
     b = measure(d, cmd, fnt)
-    check("bar-cmd", (px + 26 + b[0] / SCALE, y, px + 26 + b[2] / SCALE, y + h), (x0, y, x1, y + h))
+    ty = y + (h - (b[3] - b[1]) / SCALE) / 2 - b[1] / SCALE
+    d.text((sc(text_x), sc(ty)), cmd, font=fnt, fill=(226, 235, 252), anchor="la")
+    check("bar-cmd", (text_x, y, text_x + b[2] / SCALE, y + h), (x0, y, x1, y + h))
 
 
 # ---------------------------------------------------------------- 主流程
@@ -296,8 +302,8 @@ def main() -> int:
     draw_line(d, sub, REG_PATH, 30, (MARGIN, sub_y), GRAY, max_w=CW, min_size=22, name="subtitle")
 
     # 三个卖点卡片
-    top = 626
-    ch, gap = 152, 26
+    top = 620
+    ch, gap = 148, 24
     card(img, d, 1, "一句话新开对话",
          [("说「新开一段，把 X 做完」，模型自己建会话", REG_PATH, 25, GRAY_DIM)], top, ch)
     card(img, d, 2, "自带上下文交接",
@@ -308,13 +314,22 @@ def main() -> int:
          [("结果落地后界面自动跳过去，卡片也能点", REG_PATH, 25, GRAY_DIM)], top + 2 * (ch + gap), ch)
 
     # 底部：装一行就够
-    label_y = top + 3 * (ch + gap) - gap + 46
+    label_y = top + 3 * (ch + gap) - gap + 44
     draw_line(d, "装一行就够：", REG_PATH, 28, (MARGIN, label_y), (142, 158, 194), name="label")
-    command_bar(img, d, "node tools/install-profile.mjs --profile desktop", label_y + 46, 92)
+    # 右侧插件名（等宽），与左侧小字同一行基线
+    name_font = font(MONO_PATH, 28)
+    nb = measure(d, "dsh-new-session", name_font)
+    nw = (nb[2] - nb[0]) / SCALE
+    nx = W - MARGIN - nw
+    d.text((sc(nx), sc(label_y + 2)), "dsh-new-session", font=name_font,
+           fill=(178, 200, 255), anchor="la")
+    check("pkg-name", (nx, label_y + 2, nx + nw, label_y + 38), (0, 0, W, H))
+    bar_y = label_y + 46
+    command_bar(img, d, "node tools/install-profile.mjs --profile desktop", bar_y, 92)
 
     # 页脚小字
     foot = "MIT · 16 组单测通过 · 新会话落在当前工作区"
-    draw_line(d, foot, REG_PATH, 22, (MARGIN, H - 62), (92, 106, 138), name="footer")
+    draw_line(d, foot, REG_PATH, 22, (MARGIN, bar_y + 128), (104, 119, 152), name="footer")
 
     # 输出与自检
     final = img.convert("RGB").resize((W, H), Image.LANCZOS)
