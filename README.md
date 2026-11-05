@@ -11,6 +11,21 @@
 
 > 起因：DSH 0.2.1 里模型只能回“新对话我开不了，那是界面操作”。其实宿主有完整的建会话通路（`sessionController.commands.create` + `commands.prompt`，就是左侧栏「新对话」按钮走的那条），只是没有暴露成工具。这个插件把它补上。
 
+<details>
+<summary><b>English</b></summary>
+
+`dsh-new-session` gives the model inside DeepSeek Harness a real `new_conversation` tool: it creates a session in the current workspace, delivers a self-contained handoff as the first user message, optionally attaches a read-only `dsh-session:` snapshot of the calling conversation, pins the title with a `user` source, and the web client switches the view to the new session automatically.
+
+- Same feel as “start a new chat and keep going” in codex — say it, the new session exists.
+- Zero `@deepseek-ai/*` imports on the host side, so it does not care about your host's minor version.
+- MIT.
+
+```bash
+dsh plugin --profile desktop add dsh-new-session   # or: node tools/install-profile.mjs --profile desktop
+```
+
+</details>
+
 ## 它做什么
 
 | 能力 | 说明 |
