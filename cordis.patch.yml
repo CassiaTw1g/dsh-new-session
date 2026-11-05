@@ -1,0 +1,14 @@
+# dsh-new-session bundle patch
+#
+# 一行一插件：把 `new_conversation` 工具挂进 profile。装好后模型说“新开一段对话继续”
+# 就能真的建会话并（默认）把界面切过去。
+- insert:
+    - id: new-session
+      name: dsh-new-session
+      config:
+        # 结果落地后是否自动把 Web UI 切到新对话（false 时只给卡片 + 打开按钮）。
+        autoSwitch: true
+        # 是否自动附加“上一段对话”的只读引用（需要宿主装 dsh-session-reference）。
+        referenceCurrent: true
+        # 自动切换前的停顿，留给用户看清卡片出现。
+        switchDelayMs: 900

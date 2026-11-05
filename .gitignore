@@ -1,0 +1,31 @@
+# 依赖
+node_modules/
+.pnpm-store/
+
+# 打包产物
+dist/
+*.tgz
+!dist/.gitkeep
+
+# 安装/回滚留下的备份
+*.bak-*
+package.json.bak-*
+package-lock.json.bak-*
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志与临时文件
+*.log
+npm-debug.log*
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# 本地私货
+.env
+.env.*
